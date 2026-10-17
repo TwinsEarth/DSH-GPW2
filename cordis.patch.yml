@@ -1,0 +1,29 @@
+﻿# Bundle patch for DSH-GPW2 (Global Permission Watchdog, standalone).
+#
+# **Distinct from the DSH-GPW that ships inside @twinsearth/w2m-dsh-plugin**: that one mounts at id `dsh-gpw`, this
+# one at `dsh-gpw2`, and the plugin's own `name` export differs too. A shared id would compose two rows and stop the
+# client from opening -- the failure recorded twice on this project. Install one or the other, or both; they will not
+# collide.
+#
+# It mounts by the package's own name. The row is `disabled: true` ON PURPOSE: the package installs whenever an
+# operator adds it, and **the watchdog does not start answering permission requests until that toggle is turned on**.
+# A permission answerer that activates because someone installed a package is a decision taken away from the person
+# who has to live with it.
+#
+# Enable it in the plugin manager (flip the component on), or by removing `disabled: true` from this row in the
+# profile's composed patch.
+#
+# ## Why `insert:` and not a bare `- id:`
+#
+# No earlier layer creates this row, so a bare `- id:` patch would be a *non-insert* patch targeting a nonexistent
+# entry -- which the Loader **warns about and skips silently**. That failure shape is recorded in
+# `@twinsearth/w2m-dsh-plugin`'s own patch file and in TROUBLESHOOTING 3.2: the package installs, the profile lists
+# it, the client starts cleanly, and no row is ever composed.
+- insert:
+    - id: dsh-gpw2
+      name: '@twinsearth/dsh-gpw2'
+      disabled: true
+      config:
+        maxPerWindow: 10
+        windowMs: 60000
+        minGapMs: 3000

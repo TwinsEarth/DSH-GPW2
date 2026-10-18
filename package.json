@@ -1,25 +1,31 @@
 {
   "name": "@twinsearth/dsh-gpw2",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "DSH-GPW2, Global Permission Watchdog for DeepSeek Harness: a global approval answerer with a hard budget. Auto-approves at most 10 permission requests per rolling 60 seconds, at least 3 seconds apart; anything past either limit is deferred to the human answerer and waits. It never refuses and never changes what is asked.",
   "type": "module",
   "main": "index.mjs",
   "exports": {
     ".": "./index.mjs",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./client": "./lib/client.js"
   },
   "dsh": {
     "plugin": true,
     "kind": "server",
     "bundle": {
       "patch": "cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
     }
   },
   "files": [
     "index.mjs",
     "cordis.patch.yml",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md",
+    "lib"
   ],
   "keywords": [
     "dsh-plugin",
@@ -29,10 +35,22 @@
     "watchdog",
     "ratelimit"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TwinsEarth/DSH-GPW2.git",
+    "directory": "."
+  },
+  "homepage": "https://github.com/TwinsEarth/DSH-GPW2#readme",
+  "bugs": {
+    "url": "https://github.com/TwinsEarth/DSH-GPW2/issues"
+  },
   "engines": {
     "node": ">=20.19.0"
   },
   "license": "MIT",
+  "scripts": {
+    "test": "node --test --test-force-exit \"test/*.test.mjs\""
+  },
   "publishConfig": {
     "access": "public"
   }

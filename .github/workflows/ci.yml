@@ -1,0 +1,53 @@
+name: CI
+
+# The package ships two halves and both can break. The server half answers approval/request; the client half runs in the
+# browser shell, where a throwing entry refuses the whole web boot. Neither is exercised by installing the package, so
+# both are exercised here on every push.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # engines promises >=20.19.0, so the floor is tested rather than assumed; 22 and 24 are what operators run today.
+        node: ['20', '22', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Both halves must load
+        run: |
+          set -euo pipefail
+          node -e "import('./index.mjs').then((m) => { if (typeof m.apply !== 'function') { throw new Error('index.mjs exports no apply'); } console.log('server half loads'); })"
+          node --check lib/client.js
+          echo 'client half parses'
+
+      - name: The watchdog keeps its budget
+        run: node scripts/verify-approval-ratelimit.mjs
+
+      - name: The client entry and the selection geometry
+        # unquoted on purpose: the shell expands the glob, so this holds on every Node in the matrix instead of relying on
+        # the test runner's own glob support.
+        run: node --test --test-force-exit test/*.test.mjs
+
+      - name: Nothing packed may be committed
+        run: |
+          set -euo pipefail
+          if git ls-files '*.tgz' | grep -q .; then
+            echo "::error::a packed tarball is committed; .gitignore should prevent this"
+            git ls-files '*.tgz'
+            exit 1
+          fi

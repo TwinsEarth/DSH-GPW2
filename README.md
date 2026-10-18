@@ -52,3 +52,27 @@ Needs the `approval` service, which DSH's own base bundle provides
 
 It also needs the `approval/request` waterfall. If either is absent the plugin stays `pending (waiting for
 service: …)` rather than mounting and silently doing nothing.
+
+
+## Screenshot (Alt+Q)
+
+This package also ships a browser half (`lib/client.js`, declared as `dsh.client`). Press **Alt+Q** while the DSH window has
+focus, pick a screen or window in the platform picker, then **drag a rectangle**: the selection is copied to the clipboard
+as PNG. **Enter** copies the current rectangle, **Esc** cancels.
+
+### The three limits, stated up front
+
+| Limit | Why | What it means for you |
+|---|---|---|
+| The shortcut is **page-level**, not system-wide | A web shell cannot register an OS-level hotkey | Alt+Q works when DSH is focused; it does nothing in other apps |
+| A **source picker** appears every time | `getDisplayMedia` has no API to preselect a display, by design | You choose screen/window each press; there is no "capture silently" mode |
+| The clipboard needs a secure context | `navigator.clipboard.write` requires https or localhost | On plain http over the LAN the selection is downloaded as a PNG instead, and the toast says so |
+
+There is no state stored, no upload and no relay call: the frame is drawn into a canvas in the page, the selected pixels are
+cropped locally, and the only output is the clipboard (or a local download fallback).
+
+### Why it lives in this package
+
+The operator asked for one package rather than two. The two halves share nothing at runtime -- the watchdog answers
+`approval/request` on the server, this half declares `inject = []` and never touches an approval -- so a screenshot
+failure cannot disable the watchdog.

@@ -19,6 +19,13 @@
 # entry -- which the Loader **warns about and skips silently**. That failure shape is recorded in
 # `@twinsearth/w2m-dsh-plugin`'s own patch file and in TROUBLESHOOTING 3.2: the package installs, the profile lists
 # it, the client starts cleanly, and no row is ever composed.
+## The two halves
+#
+# `index.mjs` is the watchdog (server). `lib/client.js` is the screenshot half (browser), declared by `dsh.client` in
+# package.json. The row below gates the WATCHDOG. If the screenshot shortcut does not fire on an installed machine, the
+# first thing to check is whether this row is composed at all: a `disabled: true` row is not composed, and an entry that is
+# not composed has no browser half either. Enabling the row is what the plugin manager's toggle does, and it starts the
+# watchdog too -- that trade-off is exactly why the row ships disabled.
 - insert:
     - id: dsh-gpw2
       name: '@twinsearth/dsh-gpw2'
